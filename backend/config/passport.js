@@ -20,7 +20,9 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "https://codeassess-backend-pa4p.onrender.com/api/auth/google/callback"
+    callbackURL: process.env.BACKEND_URL 
+        ? `${process.env.BACKEND_URL}/api/auth/google/callback` 
+        : "http://localhost:5000/api/auth/google/callback"
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         console.log('Google Auth Profile:', profile.id, profile.emails?.[0]?.value);
@@ -65,7 +67,9 @@ passport.use(new GoogleStrategy({
 passport.use(new GitHubStrategy({
     clientID: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: "https://codeassess-backend-pa4p.onrender.com/api/auth/github/callback"
+    callbackURL: process.env.BACKEND_URL 
+        ? `${process.env.BACKEND_URL}/api/auth/github/callback` 
+        : "http://localhost:5000/api/auth/github/callback"
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         console.log('GitHub Auth Profile:', profile.id, profile.username);
