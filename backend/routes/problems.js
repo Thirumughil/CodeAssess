@@ -38,6 +38,8 @@ const seedProblems = async () => {
     }
 };
 
+seedProblems();
+
 router.get('/', async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;

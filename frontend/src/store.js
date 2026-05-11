@@ -1,7 +1,14 @@
 import { create } from 'zustand';
 
 export const useStore = create((set) => ({
-  user: JSON.parse(localStorage.getItem('user')) || null,
+  user: (() => {
+    try {
+      const saved = localStorage.getItem('user');
+      return saved && saved !== 'undefined' ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  })(),
   setUser: (user) => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
@@ -19,7 +26,14 @@ export const useStore = create((set) => ({
   currentProblem: null,
   setCurrentProblem: (problem) => set({ currentProblem: problem }),
   
-  savedCode: JSON.parse(localStorage.getItem('savedCode')) || {},
+  savedCode: (() => {
+    try {
+      const saved = localStorage.getItem('savedCode');
+      return saved && saved !== 'undefined' ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  })(),
   saveCode: (problemId, language, code) => set((state) => {
     const updatedCode = {
       ...state.savedCode,
@@ -30,7 +44,14 @@ export const useStore = create((set) => ({
   }),
 
   // Solved problems tracking
-  solvedProblems: JSON.parse(localStorage.getItem('solvedProblems')) || [],
+  solvedProblems: (() => {
+    try {
+      const saved = localStorage.getItem('solvedProblems');
+      return saved && saved !== 'undefined' ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  })(),
   setSolvedProblems: (solvedProblems) => {
     localStorage.setItem('solvedProblems', JSON.stringify(solvedProblems));
     set({ solvedProblems });

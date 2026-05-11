@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
 import { useStore } from './store';
@@ -31,22 +31,24 @@ function App() {
   });
 
   useEffect(() => {
+    console.log('App initializing...');
     const initApp = async () => {
-      // 1. Load problems
       try {
-        const probs = await getProblems();
-        setProblems(probs);
+        console.log('Fetching problems...');
+        const data = await getProblems();
+        setProblems(data.problems || data);
+        console.log('Problems loaded:', (data.problems || data).length);
       } catch (err) {
-        console.error('Failed to load problems', err);
+        console.warn('Failed to load problems', err);
       }
 
-      // 2. Load solved problems if user is logged in
       if (user && (user._id || user.id)) {
         try {
+          console.log('Fetching solved problems for user:', user._id || user.id);
           const solved = await getUserSolvedProblems(user._id || user.id);
           setSolvedProblems(solved);
         } catch (err) {
-          console.error('Failed to load solved problems', err);
+          console.warn('Failed to load solved problems', err);
         }
       }
     };
@@ -55,16 +57,13 @@ function App() {
   }, [user, setProblems, setSolvedProblems]);
 
   const handleSplashComplete = () => {
+    console.log('Splash intro complete');
     setShowSplash(false);
     sessionStorage.setItem('splash_shown', 'true');
   };
 
   if (showSplash) {
-    return (
-      <Suspense fallback={<PageLoader />}>
-        <SplashIntro onComplete={handleSplashComplete} />
-      </Suspense>
-    );
+    return <SplashIntro onComplete={handleSplashComplete} />;
   }
 
   return (
@@ -76,12 +75,8 @@ function App() {
         className="relative min-h-screen bg-dark-900 overflow-hidden text-slate-200 cursor-none"
       >
         <Suspense fallback={null}><CustomCursor /></Suspense>
-        {/* Persistent 3D Background */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <Suspense fallback={null}>
-            <Background3D />
-          </Suspense>
-        </div>
+        {/* 3D Background disabled for maximum device compatibility */}
+        <div className="absolute inset-0 z-0 bg-dark-900" />
         
         {/* Main Content */}
         <main className="relative z-10 min-h-screen">

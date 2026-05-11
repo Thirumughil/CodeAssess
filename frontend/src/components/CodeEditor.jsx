@@ -158,14 +158,12 @@ export default function CodeEditor({ problem }) {
         </div>
         <div className="flex-1 relative min-h-0">
           <Editor height="100%" language={language === 'c' || language === 'cpp' ? 'cpp' : language} theme="vs-dark" value={code} onChange={handleEditorChange} options={{ minimap: { enabled: false }, fontSize: 14, fontFamily: '"Fira Code", monospace', padding: { top: 16 }, scrollBeyondLastLine: false, automaticLayout: true }} />
-          <AnimatePresence>
-            {langFlash && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center gap-2 z-20 pointer-events-none">
-                <motion.div initial={{ scale: 0.4 }} animate={{ scale: 1 }} exit={{ scale: 1.4 }} className="text-5xl">{langFlash.emoji}</motion.div>
-                <motion.div initial={{ y: 12 }} animate={{ y: 0 }} exit={{ y: -8 }} className="text-4xl font-black" style={{ color: langFlash.color }}>{langFlash.name}</motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {langFlash && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center gap-2 z-20 pointer-events-none">
+              <motion.div initial={{ scale: 0.4 }} animate={{ scale: 1 }} className="text-5xl">{langFlash.emoji}</motion.div>
+              <motion.div initial={{ y: 12 }} animate={{ y: 0 }} className="text-4xl font-black" style={{ color: langFlash.color }}>{langFlash.name}</motion.div>
+            </motion.div>
+          )}
         </div>
       </div>
       <div className="h-56 flex flex-col overflow-hidden rounded-xl border border-white/10 bg-black/90 backdrop-blur-md">

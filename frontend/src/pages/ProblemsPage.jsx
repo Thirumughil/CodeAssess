@@ -18,7 +18,7 @@ const difficultyColor = {
 };
 
 export default function ProblemsPage() {
-  const { problems, setProblems, setCurrentProblem, solvedProblems } = useStore();
+  const { problems = [], setProblems, setCurrentProblem, solvedProblems = [] } = useStore();
   const [activeTag, setActiveTag] = useState(null);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -114,57 +114,54 @@ export default function ProblemsPage() {
           </div>
         </div>
 
-        {/* Problem List */}
         <div className="space-y-2">
-          <AnimatePresence>
-            {problems.map((problem, idx) => (
-              <motion.div
-                key={problem._id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
-                transition={{ delay: idx * 0.03 }}
+          {problems.map((problem, idx) => (
+            <motion.div
+              key={problem._id}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: idx * 0.03 }}
+            >
+              <Link
+                to={`/problems/${problem._id}`}
+                onClick={() => setCurrentProblem(problem)}
+                className="flex items-center justify-between px-5 py-4 glass-panel hover:bg-white/5 border border-white/5 hover:border-blue-500/20 transition-all group"
               >
-                <Link
-                  to={`/problems/${problem._id}`}
-                  onClick={() => setCurrentProblem(problem)}
-                  className="flex items-center justify-between px-5 py-4 glass-panel hover:bg-white/5 border border-white/5 hover:border-blue-500/20 transition-all group"
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="w-8 text-center text-sm font-mono text-slate-500">{idx + 1}</span>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-slate-200 group-hover:text-blue-400 transition-colors">
-                          {problem.title}
+                <div className="flex items-center gap-4">
+                  <span className="w-8 text-center text-sm font-mono text-slate-500">{idx + 1}</span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-slate-200 group-hover:text-blue-400 transition-colors">
+                        {problem.title}
+                      </span>
+                      {solvedIds.has(problem._id) && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          ✓ Solved
                         </span>
-                        {solvedIds.has(problem._id) && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                            ✓ Solved
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex gap-1.5 mt-1">
-                        {problem.tags?.map(t => (
-                          <span key={t} className="text-xs text-slate-500 bg-white/5 px-2 py-0.5 rounded">
-                            {t}
-                          </span>
-                        ))}
-                      </div>
+                      )}
+                    </div>
+                    <div className="flex gap-1.5 mt-1">
+                      {problem.tags?.map(t => (
+                        <span key={t} className="text-xs text-slate-500 bg-white/5 px-2 py-0.5 rounded">
+                          {t}
+                        </span>
+                      ))}
                     </div>
                   </div>
-                  <span className={`text-xs px-3 py-1 rounded-full border ${difficultyColor[problem.difficulty] || 'text-slate-400'}`}>
-                    {problem.difficulty}
-                  </span>
-                </Link>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                </div>
+                <span className={`text-xs px-3 py-1 rounded-full border ${difficultyColor[problem.difficulty] || 'text-slate-400'}`}>
+                  {problem.difficulty}
+                </span>
+              </Link>
+            </motion.div>
+          ))}
 
           {problems.length === 0 && (
             <div className="text-center py-16 text-slate-500">
               No problems match the selected filter.
             </div>
           )}
+        </div>
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
@@ -190,6 +187,5 @@ export default function ProblemsPage() {
           )}
         </div>
       </div>
-    </div>
-  );
+    );
 }

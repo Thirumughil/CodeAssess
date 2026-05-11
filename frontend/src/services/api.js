@@ -7,9 +7,14 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  if (user?.token) {
-    config.headers.Authorization = `Bearer ${user.token}`;
+  try {
+    const saved = localStorage.getItem('user');
+    const user = saved && saved !== 'undefined' ? JSON.parse(saved) : null;
+    if (user?.token) {
+      config.headers.Authorization = `Bearer ${user.token}`;
+    }
+  } catch (e) {
+    console.warn('Failed to parse user from localStorage', e);
   }
   return config;
 });

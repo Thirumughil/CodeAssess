@@ -6,6 +6,10 @@ const jwt = require('jsonwebtoken');
 const sendEmail = require('../utils/sendEmail');
 
 const generateToken = (id) => {
+    if (!process.env.JWT_SECRET) {
+        console.error('JWT_SECRET is missing!');
+        return 'temporary_token_for_debug'; 
+    }
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
@@ -120,26 +124,40 @@ const passport = require('passport');
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 // @route   GET api/auth/google/callback
-router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
-    const token = generateToken(req.user._id);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?token=${token}&user=${JSON.stringify({
-        _id: req.user._id,
-        username: req.user.username,
-        email: req.user.email
-    })}`);
+router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/login', session: true }), (req, res) => {
+    try {
+        const token = generateToken(req.user._id);
+        const frontendUrl = process.env.FRONTEND_URL || 'https://codepractise.vercel.app';
+        const userStr = JSON.stringify({
+            _id: req.user._id,
+            username: req.user.username,
+            email: req.user.email
+        });
+        res.redirect(`${frontendUrl}/login?token=${token}&user=${encodeURIComponent(userStr)}`);
+    } catch (error) {
+        console.error('Callback Redirect Error:', error);
+        res.redirect(`${process.env.FRONTEND_URL || 'https://codepractise.vercel.app'}/login?error=auth_failed`);
+    }
 });
 
 // @route   GET api/auth/github
 router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
 
 // @route   GET api/auth/github/callback
-router.get('/github/callback', passport.authenticate('github', { failureRedirect: '/login' }), (req, res) => {
-    const token = generateToken(req.user._id);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?token=${token}&user=${JSON.stringify({
-        _id: req.user._id,
-        username: req.user.username,
-        email: req.user.email
-    })}`);
+router.get('/github/callback', passport.authenticate('github', { failureRedirect: '/login', session: true }), (req, res) => {
+    try {
+        const token = generateToken(req.user._id);
+        const frontendUrl = process.env.FRONTEND_URL || 'https://codepractise.vercel.app';
+        const userStr = JSON.stringify({
+            _id: req.user._id,
+            username: req.user.username,
+            email: req.user.email
+        });
+        res.redirect(`${frontendUrl}/login?token=${token}&user=${encodeURIComponent(userStr)}`);
+    } catch (error) {
+        console.error('Callback Redirect Error:', error);
+        res.redirect(`${process.env.FRONTEND_URL || 'https://codepractise.vercel.app'}/login?error=auth_failed`);
+    }
 });
 
 module.exports = router;
