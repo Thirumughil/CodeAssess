@@ -18,7 +18,7 @@ const difficultyColor = {
 };
 
 export default function ProblemsPage() {
-  const { problems, setProblems, currentProblem, setCurrentProblem, solvedProblems } = useStore();
+  const { problems, setProblems, setCurrentProblem, solvedProblems } = useStore();
   const [activeTag, setActiveTag] = useState(null);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -45,7 +45,7 @@ export default function ProblemsPage() {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [page, search, activeTag]);
+  }, [page, search, activeTag, setProblems]);
 
   const solvedIds = new Set(solvedProblems.map(s => s.problemId));
 

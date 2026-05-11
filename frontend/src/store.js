@@ -7,6 +7,8 @@ export const useStore = create((set) => ({
       localStorage.setItem('user', JSON.stringify(user));
     } else {
       localStorage.removeItem('user');
+      localStorage.removeItem('solvedProblems');
+      set({ solvedProblems: [] });
     }
     set({ user });
   },
@@ -29,6 +31,10 @@ export const useStore = create((set) => ({
 
   // Solved problems tracking
   solvedProblems: JSON.parse(localStorage.getItem('solvedProblems')) || [],
+  setSolvedProblems: (solvedProblems) => {
+    localStorage.setItem('solvedProblems', JSON.stringify(solvedProblems));
+    set({ solvedProblems });
+  },
   addSolvedProblem: (problemId, title, difficulty, timeComplexity, spaceComplexity) =>
     set((state) => {
       const existing = state.solvedProblems.find(p => p.problemId === problemId);

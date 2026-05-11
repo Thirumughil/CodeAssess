@@ -1,23 +1,22 @@
-import { useRef, useMemo } from 'react';
+import { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Points, PointMaterial } from '@react-three/drei';
+
+const PARTICLE_POSITIONS = new Float32Array(5000 * 3);
+for (let i = 0; i < 5000; i++) {
+    const theta = 2 * Math.PI * Math.random();
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = 1.5 * Math.cbrt(Math.random());
+    PARTICLE_POSITIONS[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+    PARTICLE_POSITIONS[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+    PARTICLE_POSITIONS[i * 3 + 2] = r * Math.cos(phi);
+}
 
 function ParticleSwarm(props) {
   const ref = useRef();
   
   // Custom random in sphere implementation to avoid 'maath' dependency
-  const positions = useMemo(() => {
-    const pos = new Float32Array(5000 * 3);
-    for (let i = 0; i < 5000; i++) {
-        const theta = 2 * Math.PI * Math.random();
-        const phi = Math.acos(2 * Math.random() - 1);
-        const r = 1.5 * Math.cbrt(Math.random());
-        pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-        pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-        pos[i * 3 + 2] = r * Math.cos(phi);
-    }
-    return pos;
-  }, []);
+  const positions = PARTICLE_POSITIONS;
 
   useFrame((state, delta) => {
     if (ref.current) {

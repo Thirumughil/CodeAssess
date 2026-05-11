@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
 import { useStore } from './store';
 
@@ -11,6 +12,8 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Background3D = lazy(() => import('./components/Background3D'));
 const CustomCursor = lazy(() => import('./components/CustomCursor'));
+import SplashIntro from './components/SplashIntro';
+
 
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[100vh] bg-dark-900 absolute inset-0 z-50">
@@ -18,12 +21,60 @@ const PageLoader = () => (
   </div>
 );
 
+import { getProblems, getUserSolvedProblems } from './services/api';
+
 function App() {
-  const { user } = useStore();
+  const { user, setUser, setProblems, setSolvedProblems } = useStore();
+  const [showSplash, setShowSplash] = useState(() => {
+    // Check session storage to avoid repeating the intro in the same session
+    return !sessionStorage.getItem('splash_shown');
+  });
+
+  useEffect(() => {
+    const initApp = async () => {
+      // 1. Load problems
+      try {
+        const probs = await getProblems();
+        setProblems(probs);
+      } catch (err) {
+        console.error('Failed to load problems', err);
+      }
+
+      // 2. Load solved problems if user is logged in
+      if (user && (user._id || user.id)) {
+        try {
+          const solved = await getUserSolvedProblems(user._id || user.id);
+          setSolvedProblems(solved);
+        } catch (err) {
+          console.error('Failed to load solved problems', err);
+        }
+      }
+    };
+
+    initApp();
+  }, [user, setProblems, setSolvedProblems]);
+
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+    sessionStorage.setItem('splash_shown', 'true');
+  };
+
+  if (showSplash) {
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <SplashIntro onComplete={handleSplashComplete} />
+      </Suspense>
+    );
+  }
 
   return (
     <Router>
-      <div className="relative min-h-screen bg-dark-900 overflow-hidden text-slate-200 cursor-none">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+        className="relative min-h-screen bg-dark-900 overflow-hidden text-slate-200 cursor-none"
+      >
         <Suspense fallback={null}><CustomCursor /></Suspense>
         {/* Persistent 3D Background */}
         <div className="absolute inset-0 z-0 pointer-events-none">
@@ -48,6 +99,8 @@ function App() {
           </Suspense>
         </main>
 
+
+
         <Toaster position="top-right"
           toastOptions={{
             style: {
@@ -57,7 +110,7 @@ function App() {
             }
           }} 
         />
-      </div>
+      </motion.div>
     </Router>
   );
 }

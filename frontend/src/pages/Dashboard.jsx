@@ -150,10 +150,7 @@ export default function Dashboard() {
   const topTC = Object.entries(tcFreq).sort((a,b) => b[1]-a[1])[0]?.[0] ?? '—';
   const topSC = Object.entries(scFreq).sort((a,b) => b[1]-a[1])[0]?.[0] ?? '—';
 
-  const containerVariants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
-  };
+
 
   return (
     <div style={{

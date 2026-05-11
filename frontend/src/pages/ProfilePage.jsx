@@ -81,7 +81,7 @@ function ToggleSection({ title, icon: Icon, color, children }) {
   );
 }
 
-function ComplexityBar({ label, value, color, max = 100 }) {
+function ComplexityBar({ label, value, color }) {
   return (
     <div className="mb-3">
       <div className="flex justify-between text-xs mb-1">

@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar';
 import ProblemDescription from '../components/ProblemDescription';
 import CodeEditor from '../components/CodeEditor';
 import { getProblems } from '../services/api';
-import toast from 'react-hot-toast';
+
 
 import { FALLBACK_PROBLEMS } from '../services/fallbackData';
 
@@ -34,7 +34,7 @@ export default function ProblemSolvePage() {
       if (found) setCurrentProblem(found);
     };
     loadProblems();
-  }, [id]);
+  }, [id, problems, setProblems, setCurrentProblem]);
 
   return (
     <div className="h-screen flex flex-col">

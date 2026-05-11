@@ -48,7 +48,7 @@ export default function CustomCursor() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('click', handleClick);
     };
-  }, []);
+  }, [mouseX, mouseY]);
 
   return (
     <>

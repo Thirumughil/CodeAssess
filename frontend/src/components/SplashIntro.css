@@ -1,0 +1,91 @@
+/* SplashIntro.css */
+
+:root {
+  --charcoal-black: #0a0a0a;
+  --electric-blue: #3b82f6;
+  --emerald-green: #10b981;
+  --slate-100: #f1f5f9;
+}
+
+.splash-container {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: var(--charcoal-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* Ensure no white background ever leaks */
+  border: none;
+  outline: none;
+}
+
+.brand-reveal-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  /* Mathematical centering */
+  position: relative;
+  width: auto;
+}
+
+.brand-flex-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.brand-icon-primary {
+  color: var(--electric-blue);
+  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));
+}
+
+.brand-text-primary {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--slate-100);
+  margin: 0;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.brand-line-glow {
+  height: 2px;
+  width: 100%;
+  min-width: 300px;
+  background: linear-gradient(90deg, transparent, var(--electric-blue), var(--emerald-green), transparent);
+  opacity: 0.8;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+.skip-btn-minimal {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.skip-btn-minimal:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--slate-100);
+  border-color: rgba(255, 255, 255, 0.2);
+}
