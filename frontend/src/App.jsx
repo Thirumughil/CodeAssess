@@ -1,18 +1,19 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Suspense, lazy, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
 import { useStore } from './store';
 
-const Login = lazy(() => import('./pages/Login'));
-const HomePage = lazy(() => import('./pages/HomePage'));
-const ProblemsPage = lazy(() => import('./pages/ProblemsPage'));
-const ProblemSolvePage = lazy(() => import('./pages/ProblemSolvePage'));
-const ProfilePage = lazy(() => import('./pages/ProfilePage'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const Background3D = lazy(() => import('./components/Background3D'));
-const CustomCursor = lazy(() => import('./components/CustomCursor'));
+import Login from './pages/Login';
+import HomePage from './pages/HomePage';
+import ProblemsPage from './pages/ProblemsPage';
+import ProblemSolvePage from './pages/ProblemSolvePage';
+import ProfilePage from './pages/ProfilePage';
+import Dashboard from './pages/Dashboard';
+import Background3D from './components/Background3D';
+import CustomCursor from './components/CustomCursor';
 import SplashIntro from './components/SplashIntro';
+import ErrorBoundary from './components/ErrorBoundary';
 
 
 const PageLoader = () => (
@@ -46,7 +47,7 @@ function App() {
         try {
           console.log('Fetching solved problems for user:', user._id || user.id);
           const solved = await getUserSolvedProblems(user._id || user.id);
-          setSolvedProblems(solved);
+          setSolvedProblems(Array.isArray(solved) ? solved : []);
         } catch (err) {
           console.warn('Failed to load solved problems', err);
         }
@@ -67,34 +68,32 @@ function App() {
   }
 
   return (
-    <Router>
+    <ErrorBoundary>
+      <Router>
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
-        className="relative min-h-screen bg-dark-900 overflow-hidden text-slate-200 cursor-none"
+        className="relative min-h-screen bg-dark-900 overflow-hidden text-slate-200"
       >
-        <Suspense fallback={null}><CustomCursor /></Suspense>
-        {/* 3D Background disabled for maximum device compatibility */}
-        <div className="absolute inset-0 z-0 bg-dark-900" />
+        <CustomCursor />
+        {/* 3D Background */}
+        <Background3D />
         
         {/* Main Content */}
         <main className="relative z-10 min-h-screen">
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={!user ? <Login /> : <Navigate to="/home" />} />
-              <Route path="/login" element={!user ? <Login /> : <Navigate to="/home" />} />
-              <Route path="/home" element={user ? <HomePage /> : <Navigate to="/" />} />
-              <Route path="/problems" element={user ? <ProblemsPage /> : <Navigate to="/" />} />
-              <Route path="/problems/:id" element={user ? <ProblemSolvePage /> : <Navigate to="/" />} />
-              <Route path="/profile" element={user ? <ProfilePage /> : <Navigate to="/" />} />
-              <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/" />} />
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </Suspense>
+          <Routes>
+            <Route path="/" element={!user ? <Login /> : <Navigate to="/home" />} />
+            <Route path="/login" element={!user ? <Login /> : <Navigate to="/home" />} />
+            <Route path="/home" element={user ? <HomePage /> : <Navigate to="/" />} />
+            <Route path="/problems" element={user ? <ProblemsPage /> : <Navigate to="/" />} />
+            <Route path="/problems/:id" element={user ? <ProblemSolvePage /> : <Navigate to="/" />} />
+            <Route path="/profile" element={user ? <ProfilePage /> : <Navigate to="/" />} />
+            <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/" />} />
+            <Route path="/dom-extension" element={user ? <ProfilePage /> : <Navigate to="/" />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
         </main>
-
-
 
         <Toaster position="top-right"
           toastOptions={{
@@ -106,7 +105,8 @@ function App() {
           }} 
         />
       </motion.div>
-    </Router>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

@@ -32,6 +32,17 @@ const seedProblems = async () => {
                     c: 'void reverseString(char* s, int sSize){\n    // Write your code here\n}'
                 },
                 testCases: [{ input: '["h","e","l","l","o"]', expectedOutput: '["o","l","l","e","h"]' }]
+            },
+            {
+                title: 'DOM Extension',
+                description: 'Write a function that takes a DOM element and a class name, and adds the class to the element only if it does not already have it. Additionally, return the total number of children this element has.\n\nExample:\nInput: element, "active"\nOutput: Total children count',
+                difficulty: 'Easy',
+                tags: ['DOM', 'JavaScript'],
+                defaultCode: {
+                    python: '# DOM manipulation is not applicable in Python\n# Return children count for a simulated element\ndef dom_extension(element, class_name):\n    pass',
+                    javascript: 'function domExtension(element, className) {\n    // Write your code here\n}',
+                },
+                testCases: [{ input: 'element, "active"', expectedOutput: '5' }]
             }
         ];
         await Problem.insertMany(samples);

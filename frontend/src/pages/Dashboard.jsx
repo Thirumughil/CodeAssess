@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  CheckCircle2, Clock, Cpu, Brain, TrendingUp,
-  ArrowLeft, Trophy, Zap, Target, BarChart2
+  CheckCircle as CheckCircle2, Clock, Cpu, Brain, TrendingUp,
+  ArrowLeft, Trophy, Zap, Target, BarChart as BarChart2
 } from 'lucide-react';
 import { useStore } from '../store';
 
@@ -14,17 +14,20 @@ const diffColor = {
 };
 
 const complexityScore = (tc, sc) => {
+  if (!tc || !sc) return 0;
   const order = ['O(1)', 'O(log n)', 'O(n)', 'O(n log n)', 'O(n²)', 'O(2ⁿ)', 'O(n!)'];
-  const ti = order.indexOf(tc ?? ''); 
-  const si = order.indexOf(sc ?? '');
+  const ti = order.indexOf(tc); 
+  const si = order.indexOf(sc);
   const ts = ti === -1 ? 3 : ti;
   const ss = si === -1 ? 3 : si;
   return Math.max(0, Math.round(100 - (ts + ss) * 8));
 };
 
 const logicalScore = (solved) => {
-  if (!solved.length) return 0;
-  const avg = solved.reduce((s, p) => s + complexityScore(p.timeComplexity, p.spaceComplexity), 0) / solved.length;
+  if (!Array.isArray(solved) || !solved.length) return 0;
+  const validSolved = solved.filter(p => p?.timeComplexity && p?.spaceComplexity);
+  if (!validSolved.length) return 0;
+  const avg = validSolved.reduce((s, p) => s + complexityScore(p.timeComplexity, p.spaceComplexity), 0) / validSolved.length;
   return Math.round(avg);
 };
 
@@ -58,7 +61,7 @@ function StatCard({ icon: Icon, label, value, color, delay }) {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexShrink: 0,
       }}>
-        <Icon size={22} style={{ color }} />
+        {Icon && <Icon size={22} style={{ color }} />}
       </div>
       <div>
         <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#e2e8f0', lineHeight: 1 }}>
@@ -133,20 +136,22 @@ export default function Dashboard() {
   const { user, solvedProblems, problems } = useStore();
   const navigate = useNavigate();
 
-  const total      = solvedProblems.length;
-  const easy       = solvedProblems.filter(p => p.difficulty === 'Easy').length;
-  const medium     = solvedProblems.filter(p => p.difficulty === 'Medium').length;
-  const hard       = solvedProblems.filter(p => p.difficulty === 'Hard').length;
+  const total      = solvedProblems?.length || 0;
+  const easy       = solvedProblems?.filter(p => p?.difficulty === 'Easy').length || 0;
+  const medium     = solvedProblems?.filter(p => p?.difficulty === 'Medium').length || 0;
+  const hard       = solvedProblems?.filter(p => p?.difficulty === 'Hard').length || 0;
   const lScore     = logicalScore(solvedProblems);
-  const totalAvail = problems.length || 50;
+  const totalAvail = problems?.length || 50;
 
   /* most common complexities */
   const tcFreq = {};
   const scFreq = {};
-  solvedProblems.forEach(p => {
-    if (p.timeComplexity)  tcFreq[p.timeComplexity]  = (tcFreq[p.timeComplexity]  || 0) + 1;
-    if (p.spaceComplexity) scFreq[p.spaceComplexity] = (scFreq[p.spaceComplexity] || 0) + 1;
-  });
+  if (Array.isArray(solvedProblems)) {
+    solvedProblems.forEach(p => {
+      if (p?.timeComplexity)  tcFreq[p.timeComplexity]  = (tcFreq[p.timeComplexity]  || 0) + 1;
+      if (p?.spaceComplexity) scFreq[p.spaceComplexity] = (scFreq[p.spaceComplexity] || 0) + 1;
+    });
+  }
   const topTC = Object.entries(tcFreq).sort((a,b) => b[1]-a[1])[0]?.[0] ?? '—';
   const topSC = Object.entries(scFreq).sort((a,b) => b[1]-a[1])[0]?.[0] ?? '—';
 

@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  Code2, CheckCircle2, LayoutDashboard, LogOut,
-  Zap, BarChart3, Brain, Shield, ArrowRight
+  Code as Code2, CheckCircle as CheckCircle2, LayoutDashboard, LogOut,
+  Zap, BarChart as BarChart3, Brain, Shield, ArrowRight
 } from 'lucide-react';
 import { useStore } from '../store';
 import toast from 'react-hot-toast';
@@ -152,7 +152,7 @@ export default function HomePage() {
                   '--icon': opt.iconColor,
                 }}
               >
-                <Icon size={17} className="hp-nav-icon" />
+                {Icon && <Icon size={17} className="hp-nav-icon" />}
                 {opt.label}
               </motion.button>
             );

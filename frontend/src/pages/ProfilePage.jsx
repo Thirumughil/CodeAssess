@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, ChevronDown, Brain, TrendingUp, Clock, Database, Award } from 'lucide-react';
+import { User, ChevronDown, Brain, TrendingUp, Clock, Database, Award, Zap, CheckCircle2, Target } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { useStore } from '../store';
 
@@ -104,36 +104,64 @@ function ComplexityBar({ label, value, color }) {
 export default function ProfilePage() {
   const { user, solvedProblems } = useStore();
 
-  const totalSolved = solvedProblems.length;
-  const easyCount = solvedProblems.filter(p => p.difficulty === 'Easy').length;
-  const mediumCount = solvedProblems.filter(p => p.difficulty === 'Medium').length;
-  const hardCount = solvedProblems.filter(p => p.difficulty === 'Hard').length;
+  const problemsArray = Array.isArray(solvedProblems) ? solvedProblems : [];
+  const validForStats = problemsArray.filter(p => p?.timeComplexity && p?.spaceComplexity);
 
-  const avgTimeScore = totalSolved
-    ? solvedProblems.reduce((sum, p) => sum + (complexityScore[p.timeComplexity] || 50), 0) / totalSolved
-    : 0;
-  const avgSpaceScore = totalSolved
-    ? solvedProblems.reduce((sum, p) => sum + (complexityScore[p.spaceComplexity] || 50), 0) / totalSolved
-    : 0;
+  const stats = [
+    { 
+      label: 'Logical Thinking', 
+      value: validForStats.length ? 
+        Math.round(validForStats.reduce((s, p) => s + (complexityScore[p.timeComplexity] || 50), 0) / validForStats.length) : 0, 
+      icon: Brain, 
+      color: '#8b5cf6' 
+    },
+    { 
+      label: 'Avg. Efficiency', 
+      value: validForStats.length ? 
+        Math.round(validForStats.reduce((s, p) => s + (100 - (['O(1)','O(log n)','O(n)','O(n log n)','O(n²)'].indexOf(p.timeComplexity) * 10)), 0) / validForStats.length) : 0, 
+      icon: Zap, 
+      color: '#f59e0b' 
+    },
+    { 
+      label: 'Problems Solved', 
+      value: problemsArray.length, 
+      icon: CheckCircle2, 
+      color: '#10b981' 
+    },
+    { 
+      label: 'Success Rate', 
+      value: user?.submissions?.length ? Math.round((problemsArray.length / user.submissions.length) * 100) : 100, 
+      icon: Target, 
+      color: '#3b82f6' 
+    },
+  ];
 
-  const logicalScore = Math.round((avgTimeScore * 0.6 + avgSpaceScore * 0.4));
-
-  const timeFreq = solvedProblems.reduce((acc, p) => {
-    acc[p.timeComplexity] = (acc[p.timeComplexity] || 0) + 1;
+  const timeFreq = problemsArray.reduce((acc, p) => {
+    if (p?.timeComplexity) acc[p.timeComplexity] = (acc[p.timeComplexity] || 0) + 1;
     return acc;
   }, {});
 
-  const spaceFreq = solvedProblems.reduce((acc, p) => {
-    acc[p.spaceComplexity] = (acc[p.spaceComplexity] || 0) + 1;
+  const spaceFreq = problemsArray.reduce((acc, p) => {
+    if (p?.spaceComplexity) acc[p.spaceComplexity] = (acc[p.spaceComplexity] || 0) + 1;
     return acc;
   }, {});
 
+  const lScoreVal = stats[0].value;
   const logicalLabel =
-    logicalScore >= 85 ? 'Elite Algorithmist' :
-    logicalScore >= 70 ? 'Efficient Thinker' :
-    logicalScore >= 50 ? 'Growing Developer' :
-    totalSolved === 0 ? 'No problems solved yet' :
+    lScoreVal >= 85 ? 'Elite Algorithmist' :
+    lScoreVal >= 70 ? 'Efficient Thinker' :
+    lScoreVal >= 50 ? 'Growing Developer' :
+    problemsArray.length === 0 ? 'No problems solved yet' :
     'Beginner';
+
+  const totalSolved = problemsArray.length;
+  const easyCount   = problemsArray.filter(p => p?.difficulty === 'Easy').length;
+  const mediumCount = problemsArray.filter(p => p?.difficulty === 'Medium').length;
+  const hardCount   = problemsArray.filter(p => p?.difficulty === 'Hard').length;
+
+  const avgTimeScore  = validForStats.length ? Math.round(validForStats.reduce((sum, p) => sum + (complexityScore[p.timeComplexity] || 50), 0) / validForStats.length) : 0;
+  const avgSpaceScore = validForStats.length ? Math.round(validForStats.reduce((sum, p) => sum + (complexityScore[p.spaceComplexity] || 50), 0) / validForStats.length) : 0;
+  const lScore        = stats[0].value;
 
   return (
     <div className="min-h-screen pt-20 pb-12 px-4">
@@ -199,7 +227,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="flex flex-wrap items-center justify-around gap-8">
-            <DonutChart value={logicalScore} color="#a78bfa" label="Overall Score" size={130} />
+            <DonutChart value={lScore} color="#a78bfa" label="Overall Score" size={130} />
             <DonutChart value={avgTimeScore} color="#60a5fa" label="Time Efficiency" size={110} />
             <DonutChart value={avgSpaceScore} color="#34d399" label="Space Efficiency" size={110} />
 
@@ -261,11 +289,11 @@ export default function ProfilePage() {
           </ToggleSection>
 
           <ToggleSection title="Solved Problems Detail" icon={TrendingUp} color="#f59e0b">
-            {solvedProblems.length === 0 ? (
+            {problemsArray.length === 0 ? (
               <p className="text-slate-500 text-sm">No problems solved yet.</p>
             ) : (
               <div className="space-y-2 max-h-64 overflow-y-auto">
-                {solvedProblems.map((p, i) => (
+                {problemsArray.map((p, i) => (
                   <motion.div
                     key={p.problemId}
                     initial={{ opacity: 0, x: -10 }}

@@ -2,15 +2,20 @@ import { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Points, PointMaterial } from '@react-three/drei';
 
-const PARTICLE_POSITIONS = new Float32Array(5000 * 3);
-for (let i = 0; i < 5000; i++) {
-    const theta = 2 * Math.PI * Math.random();
-    const phi = Math.acos(2 * Math.random() - 1);
-    const r = 1.5 * Math.cbrt(Math.random());
-    PARTICLE_POSITIONS[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-    PARTICLE_POSITIONS[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-    PARTICLE_POSITIONS[i * 3 + 2] = r * Math.cos(phi);
-}
+const getParticles = () => {
+    const positions = new Float32Array(5000 * 3);
+    for (let i = 0; i < 5000; i++) {
+        const theta = 2 * Math.PI * Math.random();
+        const phi = Math.acos(2 * Math.random() - 1);
+        const r = 1.5 * Math.cbrt(Math.random());
+        positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        positions[i * 3 + 2] = r * Math.cos(phi);
+    }
+    return positions;
+};
+
+const PARTICLE_POSITIONS = getParticles();
 
 function ParticleSwarm(props) {
   const ref = useRef();

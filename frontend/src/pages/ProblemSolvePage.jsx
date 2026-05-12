@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -25,24 +25,77 @@ export default function ProblemSolvePage() {
     };
   }, []);
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     const loadProblems = async () => {
+      setIsLoading(true);
+      setError(null);
       let allProblems = problems;
-      if (allProblems.length === 0) {
-        try {
+      try {
+        if (!allProblems || allProblems.length === 0) {
           const data = await getProblems();
           allProblems = data.problems || data;
-          setProblems(allProblems);
-        } catch {
-          allProblems = FALLBACK_PROBLEMS;
-          setProblems(allProblems);
+          if (Array.isArray(allProblems)) setProblems(allProblems);
         }
+        const found = allProblems?.find(p => p?._id === id || p?._id === String(id));
+        if (found) {
+          setCurrentProblem(found);
+        } else {
+          setError('Problem not found');
+        }
+      } catch (err) {
+        console.error('Failed to load problems:', err);
+        const fallback = FALLBACK_PROBLEMS.find(p => p?._id === id || p?._id === String(id));
+        if (fallback) {
+          setCurrentProblem(fallback);
+        } else {
+          setError('Failed to load problem data');
+        }
+      } finally {
+        setIsLoading(false);
       }
-      const found = allProblems.find(p => p._id === id || p._id === String(id));
-      if (found) setCurrentProblem(found);
     };
     loadProblems();
-  }, [id, problems.length, setProblems, setCurrentProblem]);
+  }, [id, setProblems, setCurrentProblem]);
+
+  if (isLoading) {
+    return (
+      <div className="h-screen flex flex-col bg-dark-900">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+            <p className="text-slate-400 animate-pulse font-medium">Loading challenge...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !currentProblem) {
+    return (
+      <div className="h-screen flex flex-col bg-dark-900">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="glass-panel p-10 max-w-md w-full text-center border-red-500/20">
+            <div className="text-4xl mb-4">⚠️</div>
+            <h2 className="text-xl font-bold text-slate-100 mb-2">{error || 'Problem Not Found'}</h2>
+            <p className="text-slate-500 mb-6 text-sm">
+              The problem you are looking for doesn't exist or could not be loaded.
+            </p>
+            <button
+              onClick={() => navigate('/problems')}
+              className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-all shadow-lg shadow-blue-500/20"
+            >
+              Back to Problems
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex flex-col">
@@ -61,9 +114,7 @@ export default function ProblemSolvePage() {
           >
             <ArrowLeft size={16} /> Back to Problems
           </button>
-          {currentProblem && (
-            <span className="text-slate-600">/ {currentProblem.title}</span>
-          )}
+          <span className="text-slate-600">/ {currentProblem.title}</span>
         </motion.div>
 
         {/* 2-column layout: description | editor */}

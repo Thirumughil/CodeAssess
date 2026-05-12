@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
-import Editor from '@monaco-editor/react';
+import Editor, { loader } from '@monaco-editor/react';
+
+loader.config({ 
+  paths: { 
+    vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' 
+  } 
+});
 import { Play, RotateCcw, Cpu } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';

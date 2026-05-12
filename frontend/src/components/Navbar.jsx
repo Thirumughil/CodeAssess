@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Code2, Home, List, User, LogOut } from 'lucide-react';
+import { Code as Code2, Home, List, User, LogOut } from 'lucide-react';
 import { useStore } from '../store';
 import toast from 'react-hot-toast';
 

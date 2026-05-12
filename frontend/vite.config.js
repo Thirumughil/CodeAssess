@@ -8,6 +8,7 @@ export default defineConfig({
     allowedHosts: true
   },
   build: {
-    chunkSizeWarningLimit: 2000
+    chunkSizeWarningLimit: 2000,
+    emptyOutDir: true
   }
 })
