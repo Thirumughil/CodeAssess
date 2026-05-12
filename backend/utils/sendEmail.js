@@ -1,4 +1,4 @@
-const axios = require('axios');
+const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
     // 1. Simulation Check
@@ -11,28 +11,30 @@ const sendEmail = async (options) => {
         return { simulated: true };
     }
 
-    // 2. Production Mode (Brevo API)
+    // 2. Production Mode (Brevo SMTP)
     try {
-        const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
-            sender: { 
-                name: "CodePractice", 
-                email: "thirumughils@gmail.com" // Your registered Brevo email
-            },
-            to: [{ email: options.email }],
-            subject: options.subject,
-            textContent: options.message,
-        }, {
-            headers: {
-                'accept': 'application/json',
-                'api-key': process.env.BREVO_API_KEY,
-                'content-type': 'application/json'
+        const transporter = nodemailer.createTransport({
+            host: 'smtp-relay.brevo.com',
+            port: 587,
+            secure: false, // STARTTLS
+            auth: {
+                user: 'thirumughils@gmail.com', // Your Brevo login email
+                pass: process.env.BREVO_API_KEY, // The xsmtpsib- key you just added
             }
         });
 
-        console.log('Email sent successfully via Brevo:', response.data.messageId);
-        return response.data;
+        const mailOptions = {
+            from: '"CodePractice" <thirumughils@gmail.com>',
+            to: options.email,
+            subject: options.subject,
+            text: options.message,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully via Brevo SMTP:', info.messageId);
+        return info;
     } catch (error) {
-        console.error('Brevo API Error:', error.response ? error.response.data : error.message);
+        console.error('Brevo SMTP Error:', error.message);
         throw new Error('Email delivery failed');
     }
 };
