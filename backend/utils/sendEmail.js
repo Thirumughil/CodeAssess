@@ -1,42 +1,36 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
 const sendEmail = async (options) => {
-    // For local testing/simulating if no SMTP is provided
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    // 1. Check for API Key
+    // 1. Check for API Key or Placeholder
+    if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 're_123456789') {
         console.log('--- EMAIL SIMULATION ---');
         console.log(`To: ${options.email}`);
         console.log(`Subject: ${options.subject}`);
         console.log(`Message: ${options.message}`);
         console.log('------------------------');
-        return;
+        return { simulated: true, id: 'sim_123' };
     }
 
     try {
-        const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true, // SSL
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS,
-            },
-            connectionTimeout: 45000, // 45 seconds
-            greetingTimeout: 45000,
-            socketTimeout: 45000,
-        });
+        const resend = new Resend(process.env.RESEND_API_KEY);
 
-        const mailOptions = {
-            from: `"CodePractice" <${process.env.SMTP_USER}>`,
+        const { data, error } = await resend.emails.send({
+            from: 'CodePractice <onboarding@resend.dev>',
             to: options.email,
             subject: options.subject,
             text: options.message,
-        };
+        });
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent successfully:', info.messageId);
-        return info;
+        if (error) {
+            console.error('Resend Error:', error);
+            throw new Error(error.message);
+        }
+
+        console.log('Email sent successfully via Resend:', data.id);
+        return data;
     } catch (error) {
-        console.error('Nodemailer Error:', error);
+        console.error('Email Dispatch Error:', error);
         throw new Error(`Email could not be sent: ${error.message}`);
     }
 };
