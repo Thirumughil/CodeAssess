@@ -108,7 +108,6 @@ router.post('/social-auth', async (req, res) => {
                 isVerified: true
             });
         }
-        }
 
         res.json({
             _id: user._id, 
