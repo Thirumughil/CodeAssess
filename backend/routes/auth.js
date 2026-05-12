@@ -18,7 +18,7 @@ router.post('/send-otp', async (req, res) => {
     const { email } = req.body;
     try {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        await OTP.findOneAndUpdate({ email }, { code: otp }, { upsert: true, new: true });
+        await OTP.findOneAndUpdate({ email }, { code: otp }, { upsert: true, returnDocument: 'after' });
         
         await sendEmail({
             email,
@@ -107,6 +107,7 @@ router.post('/social-auth', async (req, res) => {
                 authProvider: provider,
                 isVerified: true
             });
+        }
         }
 
         res.json({
