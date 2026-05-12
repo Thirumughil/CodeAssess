@@ -24,7 +24,7 @@ const LANGUAGES = [
 ];
 
 export default function CodeEditor({ problem }) {
-  const { savedCode, saveCode, addSolvedProblem } = useStore();
+  const { user, savedCode, saveCode, addSolvedProblem } = useStore();
   const [language, setLanguage] = useState('python');
   const [code, setCode] = useState('');
   const [output, setOutput] = useState('');
@@ -35,13 +35,14 @@ export default function CodeEditor({ problem }) {
 
   useEffect(() => {
     if (!problem) return;
-    const local = savedCode[`${problem._id}-${language}`];
+    const userId = user?._id || 'anonymous';
+    const local = savedCode[`${userId}-${problem._id}-${language}`];
     if (local !== undefined) {
       setCode(local);
     } else {
       setCode(problem.defaultCode?.[language] || '// Write your code here');
     }
-  }, [problem, language, savedCode]);
+  }, [problem, language, user, savedCode]);
 
   const handleEditorChange = (value) => {
     setCode(value);

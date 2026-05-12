@@ -35,9 +35,10 @@ export const useStore = create((set) => ({
     }
   })(),
   saveCode: (problemId, language, code) => set((state) => {
+    const userId = state.user?._id || 'anonymous';
     const updatedCode = {
       ...state.savedCode,
-      [`${problemId}-${language}`]: code
+      [`${userId}-${problemId}-${language}`]: code
     };
     localStorage.setItem('savedCode', JSON.stringify(updatedCode));
     return { savedCode: updatedCode };
